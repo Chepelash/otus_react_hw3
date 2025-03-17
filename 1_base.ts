@@ -35,17 +35,18 @@ export const getTransformFromCss = (transformCssString: string): Point => {
   };
 };
 
-export const getColorContrastValue = ([red, green, blue]: number[]): number =>
+export const getColorContrastValue = ([red, green, blue]: [number, number, number]): number =>
   // http://www.w3.org/TR/AERT#color-contrast
   Math.round((red * 299 + green * 587 + blue * 114) / 1000);
 
-export const getContrastType = (contrastValue: number): string =>
+type ColorResponse = 'black' | 'white';
+export const getContrastType = (contrastValue: number): ColorResponse =>
   contrastValue > 125 ? "black" : "white";
 
 export const shortColorRegExp = /^#[0-9a-f]{3}$/i;
 export const longColorRegExp = /^#[0-9a-f]{6}$/i;
 
-export const checkColor = (color: string): void => {
+export const checkColor = (color: string): void | never => {
   if (!longColorRegExp.test(color) && !shortColorRegExp.test(color))
     throw new Error(`invalid hex color: ${color}`);
 };
@@ -80,13 +81,13 @@ type Customer = {
   isSubscribed: boolean;
 };
 
-type CustomerAcc = Omit<Customer, "id">;
+type CustomerAcc = Record<number, Omit<Customer, "id">>;
 
 export const transformCustomers = (
   customers: Customer[],
-): { [x: string]: CustomerAcc } => {
+): CustomerAcc => {
   return customers.reduce(
-    (acc: { [x: string]: CustomerAcc }, customer: Customer) => {
+    (acc: CustomerAcc, customer: Customer) => {
       acc[customer.id] = {
         name: customer.name,
         age: customer.age,
